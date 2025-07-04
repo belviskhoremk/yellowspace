@@ -53,7 +53,7 @@ def setup_admin(request):
     # Get credentials from environment or request
     username = os.environ.get('ADMIN_USERNAME', 'admin_mimi')
     email = os.environ.get('ADMIN_EMAIL', 'emelinezankli@gmail.com')
-    password = os.environ.get('1amTh3Adm1n0fTh15App2025!?')
+    password = os.environ.get('ADMIN_PASSWORD', '1amTh3Adm1n0fTh15App2025!?')
 
     if not password:
         return JsonResponse({'error': 'Admin password not configured'}, status=400)
