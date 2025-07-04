@@ -20,7 +20,8 @@ from django.conf import settings
 from django.conf.urls.static import static
 from orders import views as order_views
 from products import views as product_views
-from .views import index, translate_text
+from .views import index, translate_text, setup_admin
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index, name='index'),
@@ -34,6 +35,8 @@ urlpatterns = [
     path('i18n/', include('django.conf.urls.i18n')),  # 👈 this enables language switching
 
     path('translate/', translate_text, name='translate_text'),
+    path('setup-admin/', setup_admin, name='setup_admin'),
+
 ]
 
 # Serve media files in development
