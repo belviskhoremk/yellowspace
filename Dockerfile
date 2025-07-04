@@ -28,6 +28,10 @@ COPY . .
 RUN mkdir -p /mimi_ecom/staticfiles
 RUN mkdir -p /mimi_ecom/media
 
+# Set proper permissions
+RUN chmod -R 755 /mimi_ecom/staticfiles
+RUN chmod -R 755 /mimi_ecom/media
+
 # Make sure the port is available
 EXPOSE 8000
 
