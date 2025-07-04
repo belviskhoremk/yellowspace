@@ -1,0 +1,1015 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEase</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/basic.css' %}">
+    <link rel="icon" href="{% static 'img/favicon_w3cub/favicon.ico' %}" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@700&family=Quicksand&display=swap" rel="stylesheet">
+    <style>
+        /* Breadcrumb */
+        .breadcrumb {
+            padding: 20px 0;
+            background-color: #f5f7ff;
+            font-size: 15px;
+        }
+
+        .breadcrumb a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .breadcrumb a:hover {
+            color: var(--primary);
+        }
+
+        .breadcrumb span {
+            color: var(--dark);
+            font-weight: 500;
+        }
+
+        /* Product Detail Section */
+        .product-detail {
+            padding: 60px 0;
+        }
+
+        .detail-container {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+        }
+
+        .detail-image {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 450px;
+        }
+
+        .detail-image img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .detail-info {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .detail-category {
+            display: inline-block;
+            background: rgba(74, 109, 229, 0.1);
+            color: var(--primary);
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 15px;
+        }
+
+        .detail-name {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+            line-height: 1.2;
+        }
+
+        .detail-price {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 25px;
+        }
+
+        .detail-description {
+            color: var(--gray);
+            margin-bottom: 25px;
+            line-height: 1.7;
+        }
+
+        .stock-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            font-weight: 600;
+            margin-bottom: 25px;
+        }
+
+        .in-stock {
+            background-color: rgba(40, 167, 69, 0.1);
+            color: var(--success);
+        }
+
+        .out-of-stock {
+            background-color: rgba(220, 53, 69, 0.1);
+            color: #dc3545;
+        }
+
+        .detail-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 15px;
+          margin-bottom: 30px;
+          justify-content: flex-start;
+        }
+
+
+        .quantity-selector {
+          display: flex;
+          flex: 1 1 150px;
+          max-width: 180px;
+          border: 1px solid var(--light-gray);
+          border-radius: var(--border-radius);
+          overflow: hidden;
+          height: 50px;
+        }
+
+
+        .quantity-btn {
+            width: 45px;
+            background: white;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .quantity-btn:hover {
+            background-color: var(--light);
+        }
+
+        .quantity-input {
+            width: 60px;
+            border: none;
+            border-left: 1px solid var(--light-gray);
+            border-right: 1px solid var(--light-gray);
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .btn {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 0.85rem 2rem;
+          border-radius: var(--border-radius);
+          text-decoration: none;
+          font-weight: 600;
+          font-size: clamp(0.9rem, 1.8vw, 1rem);
+          transition: var(--transition);
+          cursor: pointer;
+          border: none;
+          font-family: 'Poppins', sans-serif;
+          height: 50px;
+          gap: 10px;
+          min-width: 120px;
+          max-width: 100%;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #e55c5c;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 992px) {
+            .detail-container {
+                flex-direction: column;
+            }
+
+            .detail-image {
+                height: 350px;
+            }
+
+            .tabs-header {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+                padding: 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-title,
+            .detail-name {
+                font-size: clamp(1.5rem, 5vw, 2rem);
+            }
+
+            .detail-price {
+                font-size: clamp(1.3rem, 4.5vw, 1.8rem);
+            }
+
+            .detail-actions {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .quantity-selector {
+                width: 100%;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .detail-image {
+                height: auto;
+            }
+
+            .product-tabs {
+                margin: 40px 0;
+            }
+
+            .tab-content {
+                padding: 20px;
+            }
+
+            .reviewer-name {
+                font-size: 1rem;
+            }
+
+            .review-text {
+                font-size: 0.95rem;
+            }
+        }
+
+
+        .product-features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            background: var(--light);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin-top: 30px;
+        }
+
+        .feature {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .feature i {
+            width: 45px;
+            height: 45px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: var(--primary);
+            box-shadow: var(--box-shadow);
+        }
+
+        .feature span {
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        /* Product Tabs */
+        .product-tabs {
+            margin: 60px 0;
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            overflow: hidden;
+        }
+
+        .tabs-header {
+            display: flex;
+            border-bottom: 1px solid var(--light-gray);
+        }
+
+        .tab-btn {
+            padding: 18px 30px;
+            background: transparent;
+            border: none;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+        }
+
+        .tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary);
+        }
+
+        .tab-content {
+            padding: 30px;
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px dashed var(--light-gray);
+        }
+
+        .spec-name {
+            color: var(--gray);
+        }
+
+        .spec-value {
+            font-weight: 500;
+        }
+
+        /* Reviews Section */
+        .reviews-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .review-card {
+            background: var(--light);
+            border-radius: var(--border-radius);
+            padding: 25px;
+        }
+
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .reviewer {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .reviewer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 18px;
+        }
+
+        .reviewer-name {
+            font-weight: 600;
+            font-size: 17px;
+        }
+
+        .review-date {
+            color: var(--gray);
+            font-size: 14px;
+        }
+
+        .review-rating {
+            display: flex;
+            gap: 3px;
+            margin: 10px 0;
+        }
+
+        .review-rating i {
+            color: #FFD700;
+            font-size: 16px;
+        }
+
+        .review-text {
+            color: var(--gray);
+            line-height: 1.7;
+        }
+
+        /* Related Products Section */
+        .products {
+            padding: 60px 0;
+            background: var(--light);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 50px;
+            font-size: 2.5rem;
+            position: relative;
+        }
+
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 2px;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            transition: var(--transition);
+            box-shadow: var(--box-shadow);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.12);
+        }
+
+        .product-image {
+            aspect-ratio: 4 / 3;
+            padding: 1rem;
+            background: linear-gradient(135deg, #F8F9FA, #E9ECEF);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .product-image img {
+            max-height: 160px;
+            max-width: 100%;
+            object-fit: contain;
+            transition: var(--transition);
+        }
+
+        .product-card:hover .product-image img {
+            transform: scale(1.05);
+        }
+
+        .product-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--secondary);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 2;
+        }
+
+        .product-info {
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .product-category {
+            display: inline-block;
+            background: rgba(74, 109, 229, 0.1);
+            color: var(--primary);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            align-self: flex-start;
+        }
+
+        .product-name {
+            font-weight: 600;
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .product-price {
+            font-weight: 700;
+            font-size: 22px;
+            color: var(--dark);
+            margin-bottom: 15px;
+        }
+
+        .product-rating {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .product-rating i {
+            color: #FFD700;
+            font-size: 14px;
+            margin-right: 3px;
+        }
+
+        .rating-count {
+            font-size: 14px;
+            color: var(--gray);
+            margin-left: 8px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .view-detail {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: var(--border-radius);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: none;
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background-color: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .view-detail:hover {
+            background-color: var(--primary);
+            color: white;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 992px) {
+            .detail-container {
+                flex-direction: column;
+            }
+
+            .detail-image {
+                height: 350px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .detail-name {
+                font-size: 2rem;
+            }
+
+            .detail-price {
+                font-size: 1.8rem;
+            }
+
+            .tabs-header {
+                flex-wrap: wrap;
+            }
+
+            .tab-btn {
+                flex: 1;
+                min-width: 120px;
+                text-align: center;
+                padding: 15px;
+                font-size: 14px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .header-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .detail-actions {
+                flex-direction: column;
+            }
+
+            .quantity-selector {
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <img src="{% static 'img/yellowspace1.jpeg' %}" alt="Logo" class="logo-img">
+                <h1>Yellow<span>Space</span></h1>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="{% url 'index' %}" class="nav-link">Home</a></li>
+                    <li><a href="{% url 'products' %}" class="nav-link">Products</a></li>
+                    <li><a href="{% url 'cart' %}" class="nav-link">Cart <span class="cart-count" id="cartCount">{{ cart_count }}</span></a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Breadcrumb -->
+    <div class="breadcrumb">
+        <div class="container">
+            <a href="{% url 'index' %}">Home</a> >
+            <a href="{% url 'products' %}">Products</a> >
+            <a href="{% url 'products' %}?category={{ product.category.id }}">{{ product.category.name }}</a> >
+            <span>{{ product.name }}</span>
+        </div>
+    </div>
+
+    <!-- Product Detail Section -->
+    <div class="product-detail">
+        <div class="container">
+            <div class="detail-container">
+                <div class="detail-image">
+                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                </div>
+                <div class="detail-info">
+                    <div class="detail-category">{{ product.category.name }}</div>
+                    <h2 class="detail-name">{{ product.name }}</h2>
+                    <div class="detail-price">${{ product.price }}</div>
+                    <p class="detail-description">
+                        {{ product.description }}
+                    </p>
+
+                    <div class="stock-info {% if product.quantity > 0 %}in-stock{% else %}out-of-stock{% endif %}">
+                        <i class="fas {% if product.quantity > 0 %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
+                        {% if product.quantity > 0 %}
+                            In Stock ({{ product.quantity }} available)
+                        {% else %}
+                            Out of Stock
+                        {% endif %}
+                    </div>
+
+                    <div class="detail-actions">
+                        <div class="quantity-selector">
+                            <button class="quantity-btn minus">-</button>
+                            <input type="number" class="quantity-input" id="quantityInput"
+                                   value="1" min="1" max="{{ product.quantity }}">
+                            <button class="quantity-btn plus">+</button>
+                        </div>
+                        <button class="btn btn-primary" id="addToCartBtn"
+                                {% if product.quantity <= 0 %}disabled{% endif %}>
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                        <button class="btn btn-secondary" {% if product.quantity <= 0 %}disabled{% endif %}>
+                            <i class="fas fa-shopping-bag"></i> Buy Now
+                        </button>
+                    </div>
+
+                    <div class="product-features">
+                        <div class="feature">
+                            <i class="fas fa-truck"></i>
+                            <span>Free Delivery</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>2-Year Warranty</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-exchange-alt"></i>
+                            <span>30-Day Returns</span>
+                        </div>
+                        <div class="feature">
+                            <i class="fas fa-headset"></i>
+                            <span>24/7 Support</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Tabs -->
+            <div class="product-tabs">
+                <div class="tabs-header">
+                    <button class="tab-btn active" data-tab="description">Description</button>
+                    <button class="tab-btn" data-tab="specs">Specifications</button>
+                    <button class="tab-btn" data-tab="reviews">Reviews ({{ reviews|length }})</button>
+                </div>
+
+                <div class="tab-content active" id="description">
+                    <h3>Product Overview</h3>
+                    <p>{{ product.description }}</p>
+
+                    {% if product.features %}
+                    <h3>Key Features</h3>
+                    <ul style="padding-left: 20px; margin-top: 15px; color: var(--gray); line-height: 1.7;">
+                        {% for feature in product.features %}
+                        <li>{{ feature }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                </div>
+
+                <div class="tab-content" id="specs">
+                    <div class="specs-grid">
+                        {% for spec, value in product.specs.items %}
+                        <div class="spec-item">
+                            <span class="spec-name">{{ spec }}</span>
+                            <span class="spec-value">{{ value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="tab-content" id="reviews">
+                    <div class="reviews-container">
+                        {% for review in reviews %}
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="reviewer">
+                                    <div class="reviewer-avatar">{{ review.user_initials }}</div>
+                                    <div>
+                                        <div class="reviewer-name">{{ review.user_name }}</div>
+                                        <div class="review-date">{{ review.created_at }}</div>
+                                    </div>
+                                </div>
+                                <div class="review-rating">
+                                    {% for i in "12345" %}
+                                    <i class="fas {% if forloop.counter <= review.rating %}fa-star{% else %}far fa-star{% endif %}"></i>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="review-text">
+                                {{ review.comment }}
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p>No reviews yet. Be the first to review this product!</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Related Products Section -->
+    <div class="products">
+        <div class="container">
+            <h2 class="section-title">Related Products</h2>
+            <div class="products-grid" id="relatedProducts">
+                {% for related in related_products %}
+                <div class="product-card">
+                    {% if related.is_new %}
+                    <span class="product-badge">New</span>
+                    {% endif %}
+                    <div class="product-image">
+                        <img src="{{ related.image_url }}" alt="{{ related.name }}">
+                    </div>
+                    <div class="product-info">
+                        <span class="product-category">{{ related.category.name }}</span>
+                        <h3 class="product-name">{{ related.name }}</h3>
+                        <div class="product-price">${{ related.price }}</div>
+                        <div class="product-rating">
+                            {% for i in "12345" %}
+                            <i class="fas {% if forloop.counter <= related.rating %}fa-star{% else %}far fa-star{% endif %}"></i>
+                            {% endfor %}
+                            <span class="rating-count">({{ related.review_count }})</span>
+                        </div>
+                        <div class="product-actions">
+                            <a href="{% url 'product_detail' related.id %}" class="view-detail">View</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-container">
+                <div class="footer-col">
+                    <h3>ShopEase</h3>
+                    <p>Your one-stop shop for all your needs. Quality products at affordable prices with exceptional customer service.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-pinterest"></i></a>
+                    </div>
+                </div>
+                <div class="footer-col">
+                    <h3>Quick Links</h3>
+                    <ul>
+                        <li><a href="{% url 'index' %}">Home</a></li>
+                        <li><a href="{% url 'products' %}">Products</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#contact">Contact</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Categories</h3>
+                    <ul>
+                        <li><a href="{% url 'products' %}?category=1">Electronics</a></li>
+                        <li><a href="{% url 'products' %}?category=2">Fashion</a></li>
+                        <li><a href="{% url 'products' %}?category=3">Home & Kitchen</a></li>
+                        <li><a href="{% url 'products' %}?category=4">Beauty & Health</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h3>Contact Us</h3>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> 123 Commerce St, Business City</li>
+                        <li><i class="fas fa-phone"></i> +1 (555) 123-4567</li>
+                        <li><i class="fas fa-envelope"></i> support@shopease.com</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>&copy; 2025 YellowSpace. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Product detail page functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Quantity selector
+            const minusBtn = document.querySelector('.minus');
+            const plusBtn = document.querySelector('.plus');
+            const quantityInput = document.getElementById('quantityInput');
+            const addToCartBtn = document.getElementById('addToCartBtn');
+            const cartCount = document.getElementById('cartCount');
+            let count = parseInt('{{ cart_count }}') || 0;
+
+            // Tab functionality
+            const tabBtns = document.querySelectorAll('.tab-btn');
+
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    // Add active class to clicked button
+                    this.classList.add('active');
+
+                    // Hide all tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+
+                    // Show the corresponding tab content
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+
+            // Quantity controls
+            minusBtn.addEventListener('click', function() {
+                let value = parseInt(quantityInput.value);
+                if (value > 1) {
+                    quantityInput.value = value - 1;
+                }
+            });
+
+            plusBtn.addEventListener('click', function() {
+                let value = parseInt(quantityInput.value);
+                const max = parseInt(quantityInput.getAttribute('max'));
+                if (value < max) {
+                    quantityInput.value = value + 1;
+                }
+            });
+
+            // Add to cart
+            addToCartBtn.addEventListener('click', function() {
+                const productId = '{{ product.id }}';
+                const quantity = parseInt(quantityInput.value);
+
+                // Send AJAX request to add to cart
+                fetch('/api/cart/add/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({
+                        product_id: productId,
+                        quantity: quantity
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update cart count
+                        count += quantity;
+                        cartCount.textContent = count;
+
+                        // Show confirmation
+                        const originalText = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
+                        this.style.backgroundColor = '#28a745';
+
+                        setTimeout(() => {
+                            this.innerHTML = originalText;
+                            this.style.backgroundColor = '';
+                        }, 2000);
+                    } else {
+                        alert('Error: ' + data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while adding to cart');
+                });
+            });
+
+            // View detail buttons
+            const viewDetailBtns = document.querySelectorAll('.view-detail');
+            viewDetailBtns.forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.location.href = this.getAttribute('href');
+                });
+            });
+        });
+    </script>
+</body>
+</html>
