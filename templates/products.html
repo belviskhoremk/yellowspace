@@ -438,10 +438,10 @@
 <body>
     <!-- Header -->
     <header>
-        <div class="container header-container">
-            <div class="logo">
+        <div class="container header-container" >
+            <div class="logo" translate="no">
                 <img src="{% static 'img/yellowspace1.jpeg' %}" alt="Logo" class="logo-img">
-                <h1>Yellow<span>Space</span></h1>
+                <h1 translate="no">Yellow<span translate="no">Space</span></h1>
             </div>
             <nav>
                 <ul>
@@ -520,11 +520,8 @@
                 </div>
                 <div class="footer-col">
                     <h3>Categories</h3>
-                    <ul>
-                        <li><a href="{% url 'products' %}?category=electronics">Electronics</a></li>
-                        <li><a href="{% url 'products' %}?category=fashion">Fashion</a></li>
-                        <li><a href="{% url 'products' %}?category=home">Home & Kitchen</a></li>
-                        <li><a href="{% url 'products' %}?category=beauty">Beauty & Health</a></li>
+                    <ul id="footerCategories">
+                        <!-- Footer categories will be populated dynamically -->
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -575,6 +572,7 @@
                 // Apply filters after categories are loaded
                 applyFilters();
             });
+
 
             // Add event listeners
             categoryFilter.addEventListener('change', applyFilters);
@@ -720,7 +718,7 @@
             imageDiv.className = 'product-image';
 
             const img = document.createElement('img');
-            img.src = product.image_url || 'https://via.placeholder.com/300?text=No+Image';
+            img.src = product.primary_image_url || 'https://via.placeholder.com/300?text=No+Image';
             img.alt = product.name;
 
             imageDiv.appendChild(img);
@@ -806,7 +804,7 @@
                     name: product.name,
                     price: parseFloat(product.price) || 0,
                     quantity: 1,
-                    image_url: product.image_url,
+                    image_url: product._primary_image_url,
                     category_name: product.category_name
                 };
             } else {

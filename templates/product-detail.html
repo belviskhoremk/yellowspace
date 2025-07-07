@@ -681,15 +681,15 @@
     <!-- Header -->
     <header>
         <div class="container header-container">
-            <div class="logo">
+            <div class="logo" translate="no">
                 <img src="{% static 'img/yellowspace1.jpeg' %}" alt="Logo" class="logo-img">
-                <h1>Yellow<span>Space</span></h1>
+                <h1 translate="no">Yellow<span translate="no">Space</span></h1>
             </div>
             <nav>
                 <ul>
                     <li><a href="{% url 'index' %}" class="nav-link">Home</a></li>
                     <li><a href="{% url 'products' %}" class="nav-link">Products</a></li>
-                    <li><a href="{% url 'cart' %}" class="nav-link">Cart <span class="cart-count" id="cartCount">{{ cart_count }}</span></a></li>
+                    <li><a href="{% url 'cart' %}" class="nav-link">Cart <span class="cart-count" id="cartCount">0</span></a></li>
                 </ul>
             </nav>
         </div>
@@ -710,12 +710,38 @@
         <div class="container">
             <div class="detail-container">
                 <div class="detail-image">
-                    <img src="{{ product.image_url }}" alt="{{ product.name }}">
+                    {% if product.has_images %}
+                        <!-- Main Image Display -->
+                        <div class="main-image">
+                            <img src="{{ product.primary_image }}" alt="{{ product.name }}" id="mainImage">
+                        </div>
+
+                        <!-- Image Thumbnails -->
+                        {% if product.product_images|length > 1 %}
+                        <div class="image-thumbnails">
+                            {% for image in product.product_images %}
+                            <div class="thumbnail {% if forloop.first %}active{% endif %}"
+                                 data-image="{{ image.url }}">
+                                <img src="{{ image.url }}" alt="{{ image.alt }}">
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    {% else %}
+                        <!-- Default/No Image -->
+                        <div class="main-image">
+                            <div class="no-image">
+                                <i class="fas fa-image"></i>
+                                <span>No Image Available</span>
+                            </div>
+                        </div>
+                    {% endif %}
                 </div>
+
                 <div class="detail-info">
                     <div class="detail-category">{{ product.category.name }}</div>
                     <h2 class="detail-name">{{ product.name }}</h2>
-                    <div class="detail-price">${{ product.price }}</div>
+                    <div class="detail-price">FCFA{{ product.price }}</div>
                     <p class="detail-description">
                         {{ product.description }}
                     </p>
@@ -841,12 +867,18 @@
                     <span class="product-badge">New</span>
                     {% endif %}
                     <div class="product-image">
-                        <img src="{{ related.image_url }}" alt="{{ related.name }}">
+                        {% if related.primary_image %}
+                            <img src="{{ related.primary_image }}" alt="{{ related.name }}">
+                        {% else %}
+                            <div class="no-image">
+                                <i class="fas fa-image"></i>
+                            </div>
+                        {% endif %}
                     </div>
                     <div class="product-info">
-                        <span class="product-category">{{ related.category.name }}</span>
+                        <span class="product-category">{{ related.category_name }}</span>
                         <h3 class="product-name">{{ related.name }}</h3>
-                        <div class="product-price">${{ related.price }}</div>
+                        <div class="product-price">FCFA{{ related.price }}</div>
                         <div class="product-rating">
                             {% for i in "12345" %}
                             <i class="fas {% if forloop.counter <= related.rating %}fa-star{% else %}far fa-star{% endif %}"></i>
@@ -888,11 +920,8 @@
                 </div>
                 <div class="footer-col">
                     <h3>Categories</h3>
-                    <ul>
-                        <li><a href="{% url 'products' %}?category=1">Electronics</a></li>
-                        <li><a href="{% url 'products' %}?category=2">Fashion</a></li>
-                        <li><a href="{% url 'products' %}?category=3">Home & Kitchen</a></li>
-                        <li><a href="{% url 'products' %}?category=4">Beauty & Health</a></li>
+                    <ul id="footerCategories">
+                        <!-- Footer categories will be populated dynamically -->
                     </ul>
                 </div>
                 <div class="footer-col">
@@ -910,16 +939,153 @@
         </div>
     </footer>
 
+    <style>
+        /* Image Gallery Styles */
+        .detail-image {
+            flex: 1;
+            margin-right: 40px;
+        }
+
+        .main-image {
+            width: 100%;
+            height: 400px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #eee;
+        }
+
+        .main-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .main-image:hover img {
+            transform: scale(1.05);
+        }
+
+        .no-image {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #ccc;
+            font-size: 18px;
+        }
+
+        .no-image i {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+
+        .image-thumbnails {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 5px 0;
+        }
+
+        .thumbnail {
+            width: 70px;
+            height: 70px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            flex-shrink: 0;
+        }
+
+        .thumbnail.active {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(255, 193, 7, 0.3);
+        }
+
+        .thumbnail:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Related Products Updates */
+        .product-card .no-image {
+            height: 200px;
+            font-size: 14px;
+        }
+
+        .product-card .no-image i {
+            font-size: 32px;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .detail-image {
+                margin-right: 0;
+                margin-bottom: 30px;
+            }
+
+            .main-image {
+                height: 300px;
+            }
+
+            .thumbnail {
+                width: 60px;
+                height: 60px;
+            }
+
+            .image-thumbnails {
+                justify-content: center;
+            }
+        }
+    </style>
+
     <script>
+        // Global variables - same as first code
+        let cartItems = JSON.parse(localStorage.getItem('cartItems')) || {};
+
+        // DOM elements
+        const cartCountEl = document.getElementById('cartCount');
+
         // Product detail page functionality
         document.addEventListener('DOMContentLoaded', function() {
+            // Set cart count on page load
+            updateCartCount();
+
+            // Image gallery functionality
+            const mainImage = document.getElementById('mainImage');
+            const thumbnails = document.querySelectorAll('.thumbnail');
+
+            thumbnails.forEach(thumbnail => {
+                thumbnail.addEventListener('click', function() {
+                    // Remove active class from all thumbnails
+                    thumbnails.forEach(t => t.classList.remove('active'));
+
+                    // Add active class to clicked thumbnail
+                    this.classList.add('active');
+
+                    // Update main image
+                    const newImageSrc = this.getAttribute('data-image');
+                    if (mainImage) {
+                        mainImage.src = newImageSrc;
+                    }
+                });
+            });
+
             // Quantity selector
             const minusBtn = document.querySelector('.minus');
             const plusBtn = document.querySelector('.plus');
             const quantityInput = document.getElementById('quantityInput');
             const addToCartBtn = document.getElementById('addToCartBtn');
-            const cartCount = document.getElementById('cartCount');
-            let count = parseInt('{{ cart_count }}') || 0;
 
             // Tab functionality
             const tabBtns = document.querySelectorAll('.tab-btn');
@@ -943,63 +1109,52 @@
             });
 
             // Quantity controls
-            minusBtn.addEventListener('click', function() {
-                let value = parseInt(quantityInput.value);
-                if (value > 1) {
-                    quantityInput.value = value - 1;
-                }
-            });
-
-            plusBtn.addEventListener('click', function() {
-                let value = parseInt(quantityInput.value);
-                const max = parseInt(quantityInput.getAttribute('max'));
-                if (value < max) {
-                    quantityInput.value = value + 1;
-                }
-            });
-
-            // Add to cart
-            addToCartBtn.addEventListener('click', function() {
-                const productId = '{{ product.id }}';
-                const quantity = parseInt(quantityInput.value);
-
-                // Send AJAX request to add to cart
-                fetch('/api/cart/add/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': '{{ csrf_token }}'
-                    },
-                    body: JSON.stringify({
-                        product_id: productId,
-                        quantity: quantity
-                    })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Update cart count
-                        count += quantity;
-                        cartCount.textContent = count;
-
-                        // Show confirmation
-                        const originalText = this.innerHTML;
-                        this.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
-                        this.style.backgroundColor = '#28a745';
-
-                        setTimeout(() => {
-                            this.innerHTML = originalText;
-                            this.style.backgroundColor = '';
-                        }, 2000);
-                    } else {
-                        alert('Error: ' + data.message);
+            if (minusBtn) {
+                minusBtn.addEventListener('click', function() {
+                    let value = parseInt(quantityInput.value);
+                    if (value > 1) {
+                        quantityInput.value = value - 1;
                     }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('An error occurred while adding to cart');
                 });
-            });
+            }
+
+            if (plusBtn) {
+                plusBtn.addEventListener('click', function() {
+                    let value = parseInt(quantityInput.value);
+                    const max = parseInt(quantityInput.getAttribute('max'));
+                    if (value < max) {
+                        quantityInput.value = value + 1;
+                    }
+                });
+            }
+
+            // Add to cart - using localStorage like first code
+            if (addToCartBtn) {
+                addToCartBtn.addEventListener('click', function() {
+                    // Create product object with current product data
+                    const product = {
+                        id: '{{ product.id }}',
+                        name: '{{ product.name|escapejs }}',
+                        price: parseFloat('{{ product.price }}') || 0,
+                        category_name: '{{ product.category.name|escapejs }}'
+                    };
+
+                    const quantity = parseInt(quantityInput.value);
+
+                    // Add multiple quantities to cart
+                    addToCart(product, quantity);
+
+                    // Show feedback - same as first code
+                    const originalText = this.innerHTML;
+                    this.innerHTML = '<i class="fas fa-check"></i> Added to Cart';
+                    this.style.backgroundColor = '#28a745';
+
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.backgroundColor = '';
+                    }, 1500);
+                });
+            }
 
             // View detail buttons
             const viewDetailBtns = document.querySelectorAll('.view-detail');
@@ -1010,6 +1165,35 @@
                 });
             });
         });
+
+        // Update cart count display - same as first code
+        function updateCartCount() {
+            const count = Object.keys(cartItems).length;
+            cartCountEl.textContent = count;
+        }
+
+        // Add product to cart - same logic as first code but with quantity parameter
+        function addToCart(product, quantity = 1) {
+            // Add to cart object
+            if (!cartItems[product.id]) {
+                cartItems[product.id] = {
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    quantity: quantity,
+                    image_url: product.image_url,
+                    category_name: product.category_name
+                };
+            } else {
+                cartItems[product.id].quantity += quantity;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+            // Update cart count
+            updateCartCount();
+        }
     </script>
 </body>
 </html>

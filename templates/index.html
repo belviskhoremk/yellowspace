@@ -593,9 +593,9 @@
     <!-- Header -->
     <header>
         <div class="container header-container">
-            <div class="logo">
+            <div class="logo" translate="no">
                 <img src="{% static 'img/yellowspace1.jpeg' %}" alt="Logo" class="logo-img">
-                <h1>Yellow<span>Space</span></h1>
+                <h1 translate="no">Yellow<span translate="no">Space</span></h1>
             </div>
             <nav>
                 <ul>
@@ -759,7 +759,7 @@
                     name: product.name,
                     price: parseFloat(product.price) || 0,
                     quantity: 1,
-                    image_url: product.image_url,
+                    {#image_url: product.primary_image_url,#}
                     category_name: product.category_name
                 };
             } else {
@@ -887,7 +887,7 @@
                     ${badgeHtml}
                     ${stockBadgeHtml}
                     <div class="product-image">
-                        <img src="${product.image_url || 'https://via.placeholder.com/300?text=No+Image'}" alt="${product.name}">
+                        <img src="${product.primary_image_url || 'https://via.placeholder.com/300?text=No+Image'}" alt="${product.name}">
                     </div>
                     <div class="product-info">
                         <h3 class="product-title">${product.name}</h3>

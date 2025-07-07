@@ -78,7 +78,12 @@ class ProductSerializer(serializers.ModelSerializer):
     """
     Serializer for Product model with category details
     """
-    image_url = serializers.SerializerMethodField()
+    image_1_url = serializers.SerializerMethodField()
+    image_2_url = serializers.SerializerMethodField()
+    image_3_url = serializers.SerializerMethodField()
+    image_4_url = serializers.SerializerMethodField()
+    image_5_url = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
     in_stock = serializers.SerializerMethodField()
     category = CategoryListSerializer(read_only=True)
 
@@ -86,18 +91,74 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'name', 'description', 'price', 'quantity',
-            'image', 'image_url', 'category', 'created_at', 'in_stock'
+            'image_1', 'image_2', 'image_3', 'image_4', 'image_5',
+            'image_1_url', 'image_2_url', 'image_3_url', 'image_4_url', 'image_5_url',
+            'images', 'category', 'created_at', 'in_stock'
         ]
-        read_only_fields = ['id', 'created_at', 'image_url', 'in_stock']
+        read_only_fields = [
+            'id', 'created_at', 'image_1_url', 'image_2_url', 'image_3_url',
+            'image_4_url', 'image_5_url', 'images', 'in_stock'
+        ]
 
-    def get_image_url(self, obj):
-        """Return full URL for the image"""
-        if obj.image:
+    def get_image_1_url(self, obj):
+        """Return full URL for image_1"""
+        if obj.image_1:
             request = self.context.get('request')
             if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
+                return request.build_absolute_uri(obj.image_1.url)
+            return obj.image_1.url
         return None
+
+    def get_image_2_url(self, obj):
+        """Return full URL for image_2"""
+        if obj.image_2:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image_2.url)
+            return obj.image_2.url
+        return None
+
+    def get_image_3_url(self, obj):
+        """Return full URL for image_3"""
+        if obj.image_3:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image_3.url)
+            return obj.image_3.url
+        return None
+
+    def get_image_4_url(self, obj):
+        """Return full URL for image_4"""
+        if obj.image_4:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image_4.url)
+            return obj.image_4.url
+        return None
+
+    def get_image_5_url(self, obj):
+        """Return full URL for image_5"""
+        if obj.image_5:
+            request = self.context.get('request')
+            if request:
+                return request.build_absolute_uri(obj.image_5.url)
+            return obj.image_5.url
+        return None
+
+    def get_images(self, obj):
+        """Return a list of all image URLs"""
+        request = self.context.get('request')
+        images = []
+
+        for i in range(1, 6):
+            image_field = getattr(obj, f'image_{i}')
+            if image_field:
+                if request:
+                    images.append(request.build_absolute_uri(image_field.url))
+                else:
+                    images.append(image_field.url)
+
+        return images
 
     def get_in_stock(self, obj):
         """Check if product is in stock"""
@@ -108,9 +169,14 @@ class ProductCreateSerializer(serializers.ModelSerializer):
     """
     Serializer for creating products
     """
+
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'quantity', 'image', 'category']
+        fields = [
+            'name', 'description', 'price', 'quantity',
+            'image_1', 'image_2', 'image_3', 'image_4', 'image_5',
+            'category'
+        ]
 
     def validate_price(self, value):
         """Validate that price is positive"""
@@ -135,9 +201,14 @@ class ProductUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for updating products
     """
+
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'quantity', 'image', 'category']
+        fields = [
+            'name', 'description', 'price', 'quantity',
+            'image_1', 'image_2', 'image_3', 'image_4', 'image_5',
+            'category'
+        ]
 
     def validate_price(self, value):
         """Validate that price is positive"""
@@ -162,22 +233,46 @@ class ProductListSerializer(serializers.ModelSerializer):
     """
     Lightweight serializer for product listings with category
     """
-    image_url = serializers.SerializerMethodField()
+    primary_image_url = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
     in_stock = serializers.SerializerMethodField()
     category_name = serializers.CharField(source='category.name', read_only=True)
 
     class Meta:
         model = Product
-        fields = ['id', 'name', 'price', 'quantity', 'image_url', 'in_stock', 'category_name']
+        fields = [
+            'id', 'name', 'price', 'quantity', 'primary_image_url',
+            'images', 'in_stock', 'category_name'
+        ]
 
-    def get_image_url(self, obj):
-        """Return full URL for the image"""
-        if obj.image:
-            request = self.context.get('request')
-            if request:
-                return request.build_absolute_uri(obj.image.url)
-            return obj.image.url
+    def get_primary_image_url(self, obj):
+        """Return the first available image URL"""
+        request = self.context.get('request')
+
+        for i in range(1, 6):
+            image_field = getattr(obj, f'image_{i}')
+            if image_field:
+                if request:
+                    return request.build_absolute_uri(image_field.url)
+                else:
+                    return image_field.url
+
         return None
+
+    def get_images(self, obj):
+        """Return a list of all image URLs"""
+        request = self.context.get('request')
+        images = []
+
+        for i in range(1, 6):
+            image_field = getattr(obj, f'image_{i}')
+            if image_field:
+                if request:
+                    images.append(request.build_absolute_uri(image_field.url))
+                else:
+                    images.append(image_field.url)
+
+        return images
 
     def get_in_stock(self, obj):
         """Check if product is in stock"""
@@ -188,6 +283,7 @@ class ProductStockUpdateSerializer(serializers.ModelSerializer):
     """
     Serializer for updating only product stock
     """
+
     class Meta:
         model = Product
         fields = ['quantity']

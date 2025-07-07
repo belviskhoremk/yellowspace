@@ -20,6 +20,23 @@ def product_detail(request, product_id):
     product_response = requests.get(f"{base_url}/api/products/{product_id}/")
     product = product_response.json() if product_response.status_code == 200 else None
 
+    # Process product images for easier template usage
+    if product:
+        # Create a list of all available images with their URLs
+        product_images = []
+        for i in range(1, 6):
+            image_url = product.get(f'image_{i}_url')
+            if image_url:
+                product_images.append({
+                    'url': image_url,
+                    'alt': f"{product['name']} - Image {i}"
+                })
+
+        # Add processed images to product data
+        product['product_images'] = product_images
+        product['has_images'] = len(product_images) > 0
+        product['primary_image'] = product_images[0]['url'] if product_images else None
+
     # Fetch related products from API (filter by same category)
     category_id = product['category']['id'] if product else None
     related_response = requests.get(
@@ -27,6 +44,11 @@ def product_detail(request, product_id):
     ) if category_id else None
     related_products = related_response.json()[
         'results'] if related_response and related_response.status_code == 200 else []
+
+    # Process related products images
+    for related_product in related_products:
+        if related_product.get('primary_image_url'):
+            related_product['primary_image'] = related_product['primary_image_url']
 
     # Fetch reviews for the product
     reviews_response = requests.get(f"{base_url}/api/reviews/?product={product_id}")
@@ -114,6 +136,22 @@ class ProductListAPIView(generics.ListAPIView):
             except ValueError:
                 pass
 
+        # Filter products with images
+        has_images = self.request.query_params.get('has_images')
+        if has_images is not None:
+            if has_images.lower() in ['true', '1', 'yes']:
+                queryset = queryset.filter(
+                    Q(image_1__isnull=False) | Q(image_2__isnull=False) |
+                    Q(image_3__isnull=False) | Q(image_4__isnull=False) |
+                    Q(image_5__isnull=False)
+                )
+            elif has_images.lower() in ['false', '0', 'no']:
+                queryset = queryset.filter(
+                    image_1__isnull=True, image_2__isnull=True,
+                    image_3__isnull=True, image_4__isnull=True,
+                    image_5__isnull=True
+                )
+
         return queryset
 
 
@@ -175,10 +213,96 @@ class ProductDeleteAPIView(generics.DestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         instance = self.get_object()
         product_name = instance.name
+
+        # Clean up image files before deletion
+        for i in range(1, 6):
+            image_field = getattr(instance, f'image_{i}')
+            if image_field:
+                try:
+                    image_field.delete(save=False)
+                except Exception:
+                    pass  # Continue deletion even if image cleanup fails
+
         instance.delete()
         return Response({
             'message': f'Product "{product_name}" has been deleted successfully'
         }, status=status.HTTP_200_OK)
+
+
+@api_view(['POST'])
+def bulk_upload_images(request, product_id):
+    """
+    API endpoint to upload multiple images for a product
+    """
+    try:
+        product = get_object_or_404(Product, id=product_id)
+
+        # Get uploaded files
+        uploaded_files = []
+        for i in range(1, 6):
+            file_key = f'image_{i}'
+            if file_key in request.FILES:
+                uploaded_files.append((i, request.FILES[file_key]))
+
+        if not uploaded_files:
+            return Response({
+                'error': 'No images provided'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # Update product with new images
+        for position, image_file in uploaded_files:
+            setattr(product, f'image_{position}', image_file)
+
+        product.save()
+
+        # Return updated product data
+        serializer = ProductSerializer(product, context={'request': request})
+        return Response({
+            'message': f'Successfully uploaded {len(uploaded_files)} images',
+            'product': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+@api_view(['DELETE'])
+def delete_product_image(request, product_id, image_number):
+    """
+    API endpoint to delete a specific image from a product
+    """
+    try:
+        product = get_object_or_404(Product, id=product_id)
+
+        if image_number < 1 or image_number > 5:
+            return Response({
+                'error': 'Invalid image number. Must be between 1 and 5.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        image_field = getattr(product, f'image_{image_number}')
+        if not image_field:
+            return Response({
+                'error': f'Image {image_number} does not exist for this product'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # Delete the image file
+        image_field.delete(save=False)
+        setattr(product, f'image_{image_number}', None)
+        product.save()
+
+        # Return updated product data
+        serializer = ProductSerializer(product, context={'request': request})
+        return Response({
+            'message': f'Image {image_number} deleted successfully',
+            'product': serializer.data
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 @api_view(['PATCH'])
