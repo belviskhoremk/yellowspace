@@ -37,7 +37,7 @@ urlpatterns = [
     path('translate/', translate_text, name='translate_text'),
     path('setup-admin/', setup_admin, name='setup_admin'),
 
-]
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # Serve media files in development
 if settings.DEBUG:
